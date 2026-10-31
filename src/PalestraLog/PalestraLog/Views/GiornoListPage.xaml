@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PalestraLog.ViewModels"
+             xmlns:models="clr-namespace:PalestraLog.Models"
+             x:Class="PalestraLog.Views.GiornoListPage"
+             x:DataType="vm:GiornoListViewModel"
+             Title="{Binding SchedaNome}">
+
+    <Grid RowDefinitions="*,Auto" Padding="16">
+        <CollectionView Grid.Row="0"
+                        ItemsSource="{Binding Giorni}"
+                        SelectionMode="None">
+            <CollectionView.EmptyView>
+                <Label Text="Nessun giorno configurato"
+                       FontSize="16" HorizontalTextAlignment="Center"
+                       VerticalOptions="Center" TextColor="Gray" />
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Giorno">
+                    <SwipeView>
+                        <SwipeView.RightItems>
+                            <SwipeItems>
+                                <SwipeItem Text="Modifica"
+                                           BackgroundColor="{StaticResource Primary}"
+                                           Command="{Binding Source={RelativeSource AncestorType={x:Type vm:GiornoListViewModel}}, Path=RinominaGiornoCommand}"
+                                           CommandParameter="{Binding .}" />
+                                <SwipeItem Text="Elimina"
+                                           BackgroundColor="Red"
+                                           Command="{Binding Source={RelativeSource AncestorType={x:Type vm:GiornoListViewModel}}, Path=EliminaGiornoCommand}"
+                                           CommandParameter="{Binding .}" />
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+                        <Border StrokeShape="RoundRectangle 12"
+                                Padding="20"
+                                Margin="0,6"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}">
+                            <Border.Shadow>
+                                <Shadow Brush="Black"
+                                        Offset="0,2"
+                                        Radius="6"
+                                        Opacity="{AppThemeBinding Light=0.15, Dark=0.45}" />
+                            </Border.Shadow>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:GiornoListViewModel}}, Path=SelectGiornoCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="{Binding Nome}"
+                                   FontSize="20"
+                                   FontAttributes="Bold"
+                                   VerticalOptions="Center" />
+                        </Border>
+                    </SwipeView>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Button Grid.Row="1"
+                Text="+ NUOVO GIORNO"
+                FontSize="18"
+                HeightRequest="60"
+                BackgroundColor="{StaticResource Secondary}"
+                TextColor="White"
+                CornerRadius="12"
+                Margin="0,12,0,0"
+                Command="{Binding AggiungiGiornoCommand}" />
+    </Grid>
+
+</ContentPage>

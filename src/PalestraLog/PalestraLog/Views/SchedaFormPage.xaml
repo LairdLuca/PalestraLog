@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PalestraLog.ViewModels"
+             x:Class="PalestraLog.Views.SchedaFormPage"
+             x:DataType="vm:SchedaFormViewModel"
+             Title="{Binding TitlePagina}">
+
+    <ScrollView Padding="16">
+        <VerticalStackLayout Spacing="16">
+
+            <Label Text="{Binding Errore}"
+                   TextColor="Red"
+                   FontSize="14"
+                   IsVisible="{Binding Errore, Converter={StaticResource IsNotNullConverter}}" />
+
+            <Label Text="Nome Scheda" FontSize="14" TextColor="Gray" />
+            <Entry Text="{Binding Nome}"
+                   Placeholder="es. Scheda Forza"
+                   FontSize="18"
+                   HeightRequest="50" />
+
+            <Label Text="Descrizione (opzionale)" FontSize="14" TextColor="Gray" />
+            <Editor Text="{Binding Descrizione}"
+                    Placeholder="Descrizione della scheda..."
+                    FontSize="16"
+                    HeightRequest="80" />
+
+            <Label Text="Giorni" FontSize="16" FontAttributes="Bold" />
+
+            <CollectionView ItemsSource="{Binding Giorni}"
+                            SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:GiornoInput">
+                        <HorizontalStackLayout Spacing="8" Padding="0,4">
+                            <Entry Text="{Binding Nome}"
+                                   FontSize="16"
+                                   HeightRequest="45"
+                                   HorizontalOptions="FillAndExpand" />
+                            <Button Text="✕"
+                                    WidthRequest="45"
+                                    HeightRequest="45"
+                                    CornerRadius="8"
+                                    BackgroundColor="Red"
+                                    TextColor="White"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SchedaFormViewModel}}, Path=RimuoviGiornoCommand}"
+                                    CommandParameter="{Binding .}" />
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Button Text="+ AGGIUNGI GIORNO"
+                    FontSize="16"
+                    HeightRequest="50"
+                    CornerRadius="10"
+                    BackgroundColor="{StaticResource Secondary}"
+                    TextColor="White"
+                    Command="{Binding AggiungiGiornoCommand}" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,20,0,0">
+                <Button Text="ANNULLA"
+                        FontSize="16"
+                        HeightRequest="56"
+                        CornerRadius="12"
+                        BackgroundColor="Gray"
+                        TextColor="White"
+                        Command="{Binding AnnullaCommand}" />
+                <Button Grid.Column="1"
+                        Text="SALVA"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        HeightRequest="56"
+                        CornerRadius="12"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="White"
+                        Command="{Binding SalvaCommand}" />
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

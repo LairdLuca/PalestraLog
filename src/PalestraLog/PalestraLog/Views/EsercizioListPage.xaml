@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PalestraLog.ViewModels"
+             xmlns:helpers="clr-namespace:PalestraLog.Helpers"
+             x:Class="PalestraLog.Views.EsercizioListPage"
+             x:DataType="vm:EsercizioListViewModel"
+             Title="{Binding GiornoNome}">
+
+    <ContentPage.Resources>
+
+        <DataTemplate x:Key="MembroGruppoTemplate" x:DataType="vm:EsercizioConTarget">
+            <SwipeView>
+                <SwipeView.RightItems>
+                    <SwipeItems>
+                        <SwipeItem Text="Modifica"
+                                   BackgroundColor="{StaticResource Primary}"
+                                   Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EsercizioListViewModel}}, Path=ModificaEsercizioCommand}"
+                                   CommandParameter="{Binding .}" />
+                        <SwipeItem Text="Esci gruppo"
+                                   BackgroundColor="{StaticResource Secondary}"
+                                   Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EsercizioListViewModel}}, Path=RimuoviDaGruppoCommand}"
+                                   CommandParameter="{Binding .}" />
+                        <SwipeItem Text="Elimina"
+                                   BackgroundColor="Red"
+                                   Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EsercizioListViewModel}}, Path=EliminaEsercizioCommand}"
+                                   CommandParameter="{Binding .}" />
+                    </SwipeItems>
+                </SwipeView.RightItems>
+                <Border StrokeShape="RoundRectangle 8" Padding="12" Margin="0,2">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BackgroundColor"
+                                    Value="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray500}}" />
+                            <Setter Property="StrokeThickness" Value="0" />
+                            <Style.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsInCorso}" Value="True">
+                                    <Setter Property="Stroke" Value="{StaticResource Primary}" />
+                                    <Setter Property="StrokeThickness" Value="2" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsFatto}" Value="True">
+                                    <Setter Property="BackgroundColor"
+                                            Value="{AppThemeBinding Light={StaticResource EsercizioFattoBgLight}, Dark={StaticResource EsercizioFattoBgDark}}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EsercizioListViewModel}}, Path=SelectEsercizioCommand}"
+                            CommandParameter="{Binding .}" />
+                    </Border.GestureRecognizers>
+                    <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="22,*,Auto" ColumnSpacing="10">
+                        <Label Grid.Column="0"
+                               Grid.RowSpan="2"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               VerticalOptions="Center"
+                               HorizontalOptions="Center">
+                            <Label.Style>
+                                <Style TargetType="Label">
+                                    <Setter Property="IsVisible" Value="False" />
+                                    <Style.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsFatto}" Value="True">
+                                            <Setter Property="IsVisible" Value="True" />
+                                            <Setter Property="Text" Value="✓" />
+                                            <Setter Property="TextColor" Value="{StaticResource HudGreen}" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsInCorso}" Value="True">
+                                            <Setter Property="IsVisible" Value="True" />
+                                            <Setter Property="Text" Value="⏱" />
+                                            <Setter Property="TextColor" Value="{StaticResource Primary}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Label.Style>
+                        </Label>
+                        <Label Grid.Column="1"
+                               Text="{Binding Nome}"
+                               FontSize="16"
+                               FontAttributes="Bold" />
+                        <Label Grid.Column="1"
+                               Grid.Row="1"
+                               Text="{Binding TargetDescrizione}"
+                               FontSize="12"
+                               TextColor="Gray" />
+                        <Label Grid.Column="2"
+                               Grid.RowSpan="2"
+                               Text="▶"
+                               FontSize="24"
+                               VerticalOptions="Center"
+                               TextColor="{StaticResource Primary}" />
+                    </Grid>
+                </Border>
+            </SwipeView>
+        </DataTemplate>
+
+        <DataTemplate x:Key="SingoloTemplate" x:DataType="vm:BloccoSingolo">
+            <SwipeView>
+                <SwipeView.RightItems>
+                    <SwipeItems>
+                        <SwipeItem Text="Modifica"
+                                   BackgroundColor="{StaticResource Primary}"
+                                   Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EsercizioListViewModel}}, Path=ModificaEsercizioCommand}"
+                                   CommandParameter="{Binding Esercizio}" />
+                        <SwipeItem Text="Elimina"
+                                   BackgroundColor="Red"
+                                   Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EsercizioListViewModel}}, Path=EliminaEsercizioCommand}"
+                                   CommandParameter="{Binding Esercizio}" />
+                    </SwipeItems>
+                </SwipeView.RightItems>
+                <Border StrokeShape="RoundRectangle 12"
+                        Padding="16"
+                        Margin="0,4">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BackgroundColor"
+                                    Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}" />
+                            <Setter Property="StrokeThickness" Value="0" />
+                            <Style.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding Esercizio.IsInCorso}" Value="True">
+                                    <Setter Property="Stroke" Value="{StaticResource Primary}" />
+                                    <Setter Property="StrokeThickness" Value="2" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding Esercizio.IsFatto}" Value="True">
+                                    <Setter Property="BackgroundColor"
+                                            Value="{AppThemeBinding Light={StaticResource EsercizioFattoBgLight}, Dark={StaticResource EsercizioFattoBgDark}}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Border.Shadow>
+                        <Shadow Brush="Black"
+                                Offset="0,2"
+                                Radius="6"
+                                Opacity="{AppThemeBinding Light=0.15, Dark=0.45}" />
+                    </Border.Shadow>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EsercizioListViewModel}}, Path=SelectEsercizioCommand}"
+                            CommandParameter="{Binding Esercizio}" />
+                    </Border.GestureRecognizers>
+                    <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="22,*,Auto" ColumnSpacing="10">
+                        <Label Grid.Column="0"
+                               Grid.RowSpan="2"
+                               FontSize="22"
+                               FontAttributes="Bold"
+                               VerticalOptions="Center"
+                               HorizontalOptions="Center">
+                            <Label.Style>
+                                <Style TargetType="Label">
+                                    <Setter Property="IsVisible" Value="False" />
+                                    <Style.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Esercizio.IsFatto}" Value="True">
+                                            <Setter Property="IsVisible" Value="True" />
+                                            <Setter Property="Text" Value="✓" />
+                                            <Setter Property="TextColor" Value="{StaticResource HudGreen}" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Esercizio.IsInCorso}" Value="True">
+                                            <Setter Property="IsVisible" Value="True" />
+                                            <Setter Property="Text" Value="⏱" />
+                                            <Setter Property="TextColor" Value="{StaticResource Primary}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Label.Style>
+                        </Label>
+                        <Label Grid.Column="1"
+                               Text="{Binding Esercizio.Nome}"
+                               FontSize="18"
+                               FontAttributes="Bold" />
+                        <Label Grid.Column="1"
+                               Grid.Row="1"
+                               Text="{Binding Esercizio.TargetDescrizione}"
+                               FontSize="13"
+                               TextColor="Gray" />
+                        <Label Grid.Column="2"
+                               Grid.RowSpan="2"
+                               Text="▶"
+                               FontSize="28"
+                               VerticalOptions="Center"
+                               TextColor="{StaticResource Primary}" />
+                    </Grid>
+                </Border>
+            </SwipeView>
+        </DataTemplate>
+
+        <DataTemplate x:Key="GruppoTemplate" x:DataType="vm:BloccoGruppo">
+            <Border StrokeShape="RoundRectangle 14"
+                    StrokeThickness="2"
+                    Stroke="{StaticResource Primary}"
+                    Padding="10"
+                    Margin="0,6"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray600}}">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,2" Radius="6"
+                            Opacity="{AppThemeBinding Light=0.15, Dark=0.45}" />
+                </Border.Shadow>
+                <VerticalStackLayout Spacing="6">
+                    <Border Padding="10,4"
+                            StrokeShape="RoundRectangle 6"
+                            StrokeThickness="0"
+                            BackgroundColor="{StaticResource Primary}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EsercizioListViewModel}}, Path=GestisciGruppoCommand}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0"
+                                   Text="{Binding DisplayName}"
+                                   FontAttributes="Bold"
+                                   FontSize="13"
+                                   TextColor="White"
+                                   CharacterSpacing="2"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1"
+                                   Text="⋯"
+                                   FontSize="20"
+                                   FontAttributes="Bold"
+                                   TextColor="White"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Membri}"
+                                         BindableLayout.ItemTemplate="{StaticResource MembroGruppoTemplate}"
+                                         Spacing="2" />
+                </VerticalStackLayout>
+            </Border>
+        </DataTemplate>
+
+        <helpers:BloccoListaTemplateSelector x:Key="BloccoSelector"
+            SingoloTemplate="{StaticResource SingoloTemplate}"
+            GruppoTemplate="{StaticResource GruppoTemplate}" />
+
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="*,Auto" Padding="16">
+
+        <CollectionView Grid.Row="0"
+                        ItemsSource="{Binding Blocchi}"
+                        ItemTemplate="{StaticResource BloccoSelector}"
+                        SelectionMode="None">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="8">
+                    <Label Text="Nessun esercizio"
+                           FontSize="16" HorizontalTextAlignment="Center" TextColor="Gray" />
+                    <Label Text="Aggiungi il primo esercizio per questo giorno"
+                           FontSize="13" HorizontalTextAlignment="Center" TextColor="Gray" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+        </CollectionView>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*" ColumnSpacing="8" Margin="0,12,0,0">
+            <Button Text="+ ESERCIZIO"
+                    FontSize="14"
+                    HeightRequest="60"
+                    CornerRadius="12"
+                    BackgroundColor="{StaticResource Secondary}"
+                    TextColor="White"
+                    Command="{Binding AggiungiEsercizioCommand}" />
+            <Button Grid.Column="1"
+                    Text="+ SUPER SET"
+                    FontSize="14"
+                    HeightRequest="60"
+                    CornerRadius="12"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White"
+                    Command="{Binding CreaSuperSetCommand}" />
+            <Button Grid.Column="2"
+                    Text="FINE SESSIONE"
+                    FontSize="14"
+                    HeightRequest="60"
+                    CornerRadius="12"
+                    BackgroundColor="Red"
+                    TextColor="White"
+                    IsVisible="{Binding HasSessioneAttiva}"
+                    Command="{Binding FineSessioneCommand}" />
+        </Grid>
+    </Grid>
+
+</ContentPage>

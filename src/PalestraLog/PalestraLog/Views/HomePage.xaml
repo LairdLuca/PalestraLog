@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PalestraLog.ViewModels"
+             xmlns:models="clr-namespace:PalestraLog.Models"
+             x:Class="PalestraLog.Views.HomePage"
+             x:DataType="vm:HomeViewModel"
+             Title="PalestraLog">
+
+    <Grid RowDefinitions="Auto,*,Auto,Auto" Padding="16">
+
+        <!-- Bottone INIZIA grande in alto -->
+        <Button Grid.Row="0"
+                Text="INIZIA ALLENAMENTO"
+                FontSize="22"
+                FontAttributes="Bold"
+                HeightRequest="70"
+                BackgroundColor="{StaticResource Primary}"
+                TextColor="White"
+                CornerRadius="12"
+                Margin="0,0,0,16"
+                Command="{Binding IniziaAllenamentoCommand}"
+                IsVisible="{Binding SchedaAttiva, Converter={StaticResource IsNotNullConverter}}" />
+
+        <!-- Lista schede -->
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding Schede}"
+                        SelectionMode="None">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="12">
+                    <Label Text="Nessuna scheda creata"
+                           FontSize="18"
+                           HorizontalTextAlignment="Center"
+                           TextColor="Gray" />
+                    <Label Text="Crea la tua prima scheda di allenamento!"
+                           FontSize="14"
+                           HorizontalTextAlignment="Center"
+                           TextColor="Gray" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Scheda">
+                    <SwipeView>
+                        <SwipeView.RightItems>
+                            <SwipeItems>
+                                <SwipeItem Text="Modifica"
+                                           BackgroundColor="{StaticResource Primary}"
+                                           Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=ModificaSchedaCommand}"
+                                           CommandParameter="{Binding .}" />
+                                <SwipeItem Text="Elimina"
+                                           BackgroundColor="Red"
+                                           Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=DeleteSchedaCommand}"
+                                           CommandParameter="{Binding .}" />
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+                        <Border Stroke="{Binding IsAttiva, Converter={StaticResource BoolToStrokeConverter}}"
+                                StrokeThickness="2"
+                                StrokeShape="RoundRectangle 12"
+                                Padding="16"
+                                Margin="0,4"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}">
+                            <Border.Shadow>
+                                <Shadow Brush="Black"
+                                        Offset="0,2"
+                                        Radius="6"
+                                        Opacity="{AppThemeBinding Light=0.15, Dark=0.45}" />
+                            </Border.Shadow>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=NavigateToGiorniCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{Binding Nome}"
+                                       FontSize="18"
+                                       FontAttributes="Bold" />
+                                <Label Text="{Binding Descrizione}"
+                                       FontSize="13"
+                                       TextColor="Gray"
+                                       IsVisible="{Binding Descrizione, Converter={StaticResource IsNotNullConverter}}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </SwipeView>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Bottone crea scheda -->
+        <Button Grid.Row="2"
+                Text="+ NUOVA SCHEDA"
+                FontSize="18"
+                HeightRequest="60"
+                BackgroundColor="{StaticResource Secondary}"
+                TextColor="White"
+                CornerRadius="12"
+                Margin="0,12,0,0"
+                Command="{Binding CreaSchedaCommand}" />
+
+        <!-- PROVVISORIO: l'export sta sulla Home finché non esiste la superficie Impostazioni,
+             che è la sua destinazione definitiva. Colori diversi da quelli dello stato disattivato;
+             mentre lavora il comando si disattiva e il testo lo dichiara. -->
+        <Button Grid.Row="3"
+                Text="{Binding TestoBottoneExport}"
+                FontSize="18"
+                HeightRequest="60"
+                BackgroundColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray200}}"
+                TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                CornerRadius="12"
+                Margin="0,8,0,0"
+                Command="{Binding EsportaBackupCommand}" />
+    </Grid>
+
+</ContentPage>

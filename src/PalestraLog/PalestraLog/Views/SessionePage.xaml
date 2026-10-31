@@ -1,0 +1,558 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PalestraLog.ViewModels"
+             xmlns:models="clr-namespace:PalestraLog.Models"
+             xmlns:controls="clr-namespace:PalestraLog.Controls"
+             x:Class="PalestraLog.Views.SessionePage"
+             x:DataType="vm:SessioneViewModel"
+             x:Name="PageRoot"
+             Title="{Binding LabelHeader}"
+             BackgroundColor="{AppThemeBinding Light={StaticResource HudBgLight}, Dark={StaticResource HudBgDark}}">
+
+    <ContentPage.Resources>
+        <!-- Stili Aviation HUD locali alla pagina -->
+
+        <Style x:Key="HudFrame" TargetType="Border">
+            <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource HudFrameLight}, Dark={StaticResource HudFrameDark}}" />
+            <Setter Property="StrokeThickness" Value="2" />
+            <Setter Property="StrokeShape" Value="Rectangle" />
+            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource HudPanelLight}, Dark={StaticResource HudPanelDark}}" />
+            <Setter Property="Padding" Value="14,12" />
+        </Style>
+
+        <Style x:Key="HudLabel" TargetType="Label">
+            <Setter Property="FontFamily" Value="OpenSansSemibold" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource HudMutedLight}, Dark={StaticResource HudMutedDark}}" />
+            <Setter Property="CharacterSpacing" Value="2" />
+        </Style>
+
+        <Style x:Key="HudData" TargetType="Label">
+            <Setter Property="FontFamily" Value="OpenSansSemibold" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource HudTextLight}, Dark={StaticResource HudTextDark}}" />
+        </Style>
+
+        <Style x:Key="HudDataMono" TargetType="Label">
+            <Setter Property="FontFamily" Value="Consolas" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource HudTextLight}, Dark={StaticResource HudTextDark}}" />
+        </Style>
+
+        <Style x:Key="HudButtonPrimary" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource HudAmberLight}, Dark={StaticResource HudAmberDark}}" />
+            <Setter Property="TextColor" Value="#0C0F12" />
+            <Setter Property="FontFamily" Value="OpenSansSemibold" />
+            <Setter Property="FontSize" Value="22" />
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="HeightRequest" Value="80" />
+            <Setter Property="CharacterSpacing" Value="4" />
+            <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource HudFrameLight}, Dark={StaticResource HudFrameDark}}" />
+            <Setter Property="BorderWidth" Value="2" />
+        </Style>
+
+        <Style x:Key="HudButtonSecondary" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="Transparent" />
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource HudTextLight}, Dark={StaticResource HudTextDark}}" />
+            <Setter Property="FontFamily" Value="OpenSansSemibold" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="HeightRequest" Value="56" />
+            <Setter Property="CharacterSpacing" Value="2" />
+            <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource HudFrameLight}, Dark={StaticResource HudFrameDark}}" />
+            <Setter Property="BorderWidth" Value="2" />
+        </Style>
+
+        <Style x:Key="HudStepperBtn" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="Transparent" />
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource HudAmberLight}, Dark={StaticResource HudAmberDark}}" />
+            <Setter Property="FontFamily" Value="Consolas" />
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="HeightRequest" Value="48" />
+            <Setter Property="WidthRequest" Value="48" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource HudFrameLight}, Dark={StaticResource HudFrameDark}}" />
+            <Setter Property="BorderWidth" Value="1" />
+        </Style>
+
+        <Style x:Key="HudFaticaBtn" TargetType="Button">
+            <Setter Property="FontFamily" Value="OpenSansSemibold" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="HeightRequest" Value="64" />
+            <Setter Property="CharacterSpacing" Value="1" />
+            <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource HudFrameLight}, Dark={StaticResource HudFrameDark}}" />
+            <Setter Property="BorderWidth" Value="2" />
+            <Setter Property="TextColor" Value="#0C0F12" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+
+        <!-- Template del singolo blocco-membro (usato sia in modalità singolo che super set). -->
+        <DataTemplate x:Key="MembroTemplate" x:DataType="vm:MembroSuperSet">
+            <Border Style="{StaticResource HudFrame}" Margin="0,3">
+                <!-- Cornice ambra spessa quando il membro è quello attivo (riceverà il prossimo LAP). -->
+                <Border.Triggers>
+                    <DataTrigger TargetType="Border" Binding="{Binding IsAttivo}" Value="True">
+                        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource HudAmberLight}, Dark={StaticResource HudAmberDark}}" />
+                        <Setter Property="StrokeThickness" Value="3" />
+                    </DataTrigger>
+                </Border.Triggers>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer
+                        Command="{Binding Source={x:Reference PageRoot}, Path=BindingContext.SwitchMembroAttivoCommand}"
+                        CommandParameter="{Binding .}" />
+                </Border.GestureRecognizers>
+
+                <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="6">
+
+                    <!-- Header membro: nome esercizio -->
+                    <Label Grid.Row="0"
+                           Style="{StaticResource HudData}"
+                           FontSize="15"
+                           Text="{Binding Nome}" />
+
+                    <!-- Mini-dossier (variante REPS, default per esercizi a ripetizioni) -->
+                    <Grid Grid.Row="1" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="3"
+                          IsVisible="{Binding IsHold, Converter={StaticResource InvertedBoolConverter}}">
+
+                        <Grid Grid.Row="0" ColumnDefinitions="60,Auto,*,Auto">
+                            <Label Grid.Column="0" Style="{StaticResource HudLabel}" Text="LAST" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Style="{StaticResource HudDataMono}" VerticalOptions="Center">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="{Binding Statistiche.UltimaVoltaPeso, StringFormat='{0:F1}', FallbackValue='--', TargetNullValue='--'}" />
+                                        <Span Text="kg" FontSize="12" />
+                                        <Span Text=" x " FontSize="12" />
+                                        <Span Text="{Binding Statistiche.UltimaVoltaReps, FallbackValue='--', TargetNullValue='--'}" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                            <Label Grid.Column="3"
+                                   FontFamily="OpenSansSemibold" FontSize="10" CharacterSpacing="1"
+                                   VerticalOptions="Center"
+                                   IsVisible="{Binding Statistiche.UltimaVoltaFatica, Converter={StaticResource IsNotNullConverter}}"
+                                   Text="{Binding Statistiche.UltimaVoltaFatica, Converter={StaticResource FaticaToLabelConverter}, ConverterParameter=upper}"
+                                   TextColor="{Binding Statistiche.UltimaVoltaFatica, Converter={StaticResource FaticaToColorConverter}}" />
+                        </Grid>
+
+                        <Grid Grid.Row="1" ColumnDefinitions="60,*">
+                            <Label Grid.Column="0" Style="{StaticResource HudLabel}" Text="RECORD" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Style="{StaticResource HudDataMono}" VerticalOptions="Center">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="{Binding Statistiche.PesoMassimo, StringFormat='{0:F1}'}" />
+                                        <Span Text="kg" FontSize="12" />
+                                        <Span Text=" x " FontSize="12" />
+                                        <Span Text="{Binding Statistiche.RipetizioniMassime}" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                        </Grid>
+
+                        <Grid Grid.Row="2" ColumnDefinitions="60,*">
+                            <Label Grid.Column="0" Style="{StaticResource HudLabel}" Text="TARGET" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Style="{StaticResource HudDataMono}" VerticalOptions="Center">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="{Binding Statistiche.DatiScheda.PesoTarget, StringFormat='{0:F1}', FallbackValue='--', TargetNullValue='--'}" />
+                                        <Span Text="kg" FontSize="12" />
+                                        <Span Text=" x " FontSize="12" />
+                                        <Span Text="{Binding Statistiche.DatiScheda.RipetizioniTarget, FallbackValue='--', TargetNullValue='--'}" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                        </Grid>
+
+                        <Label Grid.Row="3"
+                               FontFamily="OpenSansRegular" FontSize="11"
+                               TextColor="{AppThemeBinding Light={StaticResource HudAmberLight}, Dark={StaticResource HudAmberDark}}"
+                               Text="{Binding Statistiche.DatiScheda.Note, StringFormat='&gt; {0}'}"
+                               IsVisible="{Binding Statistiche.DatiScheda.Note, Converter={StaticResource IsNotNullConverter}}" />
+                    </Grid>
+
+                    <!-- Mini-dossier (variante HOLD, per esercizi a tempo isometrico) -->
+                    <Grid Grid.Row="1" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="3"
+                          IsVisible="{Binding IsHold}">
+
+                        <Grid Grid.Row="0" ColumnDefinitions="60,Auto,*,Auto">
+                            <Label Grid.Column="0" Style="{StaticResource HudLabel}" Text="LAST" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Style="{StaticResource HudDataMono}" VerticalOptions="Center">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="{Binding Statistiche.UltimaVoltaPeso, StringFormat='{0:F1}', FallbackValue='--', TargetNullValue='--'}" />
+                                        <Span Text="kg" FontSize="12" />
+                                        <Span Text=" x " FontSize="12" />
+                                        <Span Text="{Binding Statistiche.UltimaVoltaDurataCardioSec, FallbackValue='--', TargetNullValue='--'}" />
+                                        <Span Text="s" FontSize="12" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                            <Label Grid.Column="3"
+                                   FontFamily="OpenSansSemibold" FontSize="10" CharacterSpacing="1"
+                                   VerticalOptions="Center"
+                                   IsVisible="{Binding Statistiche.UltimaVoltaFatica, Converter={StaticResource IsNotNullConverter}}"
+                                   Text="{Binding Statistiche.UltimaVoltaFatica, Converter={StaticResource FaticaToLabelConverter}, ConverterParameter=upper}"
+                                   TextColor="{Binding Statistiche.UltimaVoltaFatica, Converter={StaticResource FaticaToColorConverter}}" />
+                        </Grid>
+
+                        <Grid Grid.Row="1" ColumnDefinitions="60,*">
+                            <Label Grid.Column="0" Style="{StaticResource HudLabel}" Text="RECORD" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Style="{StaticResource HudDataMono}" VerticalOptions="Center">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="{Binding Statistiche.PesoMassimo, StringFormat='{0:F1}'}" />
+                                        <Span Text="kg" FontSize="12" />
+                                        <Span Text=" x " FontSize="12" />
+                                        <Span Text="{Binding Statistiche.DurataCardioMassima}" />
+                                        <Span Text="s" FontSize="12" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                        </Grid>
+
+                        <Grid Grid.Row="2" ColumnDefinitions="60,*">
+                            <Label Grid.Column="0" Style="{StaticResource HudLabel}" Text="TARGET" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Style="{StaticResource HudDataMono}" VerticalOptions="Center">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="{Binding Statistiche.DatiScheda.PesoTarget, StringFormat='{0:F1}', FallbackValue='--', TargetNullValue='--'}" />
+                                        <Span Text="kg" FontSize="12" />
+                                        <Span Text=" x " FontSize="12" />
+                                        <Span Text="{Binding Statistiche.DatiScheda.DurataTargetSecondi, FallbackValue='--', TargetNullValue='--'}" />
+                                        <Span Text="s" FontSize="12" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                        </Grid>
+
+                        <Label Grid.Row="3"
+                               FontFamily="OpenSansRegular" FontSize="11"
+                               TextColor="{AppThemeBinding Light={StaticResource HudAmberLight}, Dark={StaticResource HudAmberDark}}"
+                               Text="{Binding Statistiche.DatiScheda.Note, StringFormat='&gt; {0}'}"
+                               IsVisible="{Binding Statistiche.DatiScheda.Note, Converter={StaticResource IsNotNullConverter}}" />
+                    </Grid>
+
+                    <!-- Input peso/reps stepper (sempre per il membro, anche se non attivo). -->
+                    <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2" HorizontalOptions="Center">
+                            <Label Style="{StaticResource HudLabel}" Text="LOAD KG" HorizontalOptions="Center" />
+                            <HorizontalStackLayout Spacing="0" HorizontalOptions="Center">
+                                <Button Style="{StaticResource HudStepperBtn}"
+                                        Text="-"
+                                        Command="{Binding Source={x:Reference PageRoot}, Path=BindingContext.DiminuisciPesoCommand}"
+                                        CommandParameter="2.5" />
+                                <Label FontFamily="Consolas" FontSize="28" FontAttributes="Bold"
+                                       VerticalOptions="Center" WidthRequest="80"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="{AppThemeBinding Light={StaticResource HudTextLight}, Dark={StaticResource HudTextDark}}"
+                                       Text="{Binding PesoCorrente, StringFormat='{0:F1}'}" />
+                                <Button Style="{StaticResource HudStepperBtn}"
+                                        Text="+"
+                                        Command="{Binding Source={x:Reference PageRoot}, Path=BindingContext.AumentaPesoCommand}"
+                                        CommandParameter="2.5" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                        <!-- REPS (esercizi a ripetizioni) -->
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" HorizontalOptions="Center"
+                                             IsVisible="{Binding IsHold, Converter={StaticResource InvertedBoolConverter}}">
+                            <Label Style="{StaticResource HudLabel}" Text="REPS" HorizontalOptions="Center" />
+                            <HorizontalStackLayout Spacing="0" HorizontalOptions="Center">
+                                <Button Style="{StaticResource HudStepperBtn}"
+                                        Text="-"
+                                        Command="{Binding Source={x:Reference PageRoot}, Path=BindingContext.DiminuisciRepsCommand}" />
+                                <Label FontFamily="Consolas" FontSize="28" FontAttributes="Bold"
+                                       VerticalOptions="Center" WidthRequest="56"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="{AppThemeBinding Light={StaticResource HudTextLight}, Dark={StaticResource HudTextDark}}"
+                                       Text="{Binding RipetizioniCorrenti}" />
+                                <Button Style="{StaticResource HudStepperBtn}"
+                                        Text="+"
+                                        Command="{Binding Source={x:Reference PageRoot}, Path=BindingContext.AumentaRepsCommand}" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+
+                        <!-- HOLD SEC (esercizi a tempo: plank, hold isometrici) -->
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" HorizontalOptions="Center"
+                                             IsVisible="{Binding IsHold}">
+                            <Label Style="{StaticResource HudLabel}" Text="HOLD SEC" HorizontalOptions="Center" />
+                            <HorizontalStackLayout Spacing="0" HorizontalOptions="Center">
+                                <Button Style="{StaticResource HudStepperBtn}"
+                                        Text="-"
+                                        Command="{Binding Source={x:Reference PageRoot}, Path=BindingContext.DiminuisciDurataCommand}"
+                                        CommandParameter="5" />
+                                <Label FontFamily="Consolas" FontSize="28" FontAttributes="Bold"
+                                       VerticalOptions="Center" WidthRequest="56"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="{AppThemeBinding Light={StaticResource HudTextLight}, Dark={StaticResource HudTextDark}}"
+                                       Text="{Binding DurataCardioCorrente}" />
+                                <Button Style="{StaticResource HudStepperBtn}"
+                                        Text="+"
+                                        Command="{Binding Source={x:Reference PageRoot}, Path=BindingContext.AumentaDurataCommand}"
+                                        CommandParameter="5" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </ContentPage.Resources>
+
+    <Grid>
+        <!-- ============================================================ -->
+        <!-- RAMO Pesi / CorpoLibero — Aviation HUD (singolo + super set) -->
+        <!-- ============================================================ -->
+        <Grid IsVisible="{Binding IsCardio, Converter={StaticResource InvertedBoolConverter}}">
+
+            <controls:AuraOverlay AuraState="{Binding AuraState}"
+                                  InputTransparent="True"
+                                  HorizontalOptions="Fill"
+                                  VerticalOptions="Fill" />
+
+            <Grid Padding="10" RowSpacing="6"
+                  RowDefinitions="Auto,*,Auto,Auto,Auto">
+
+                <!-- ROW 0 — HEADER STICKY: nome esercizio o label super set + badge settimana -->
+                <Border Grid.Row="0" Style="{StaticResource HudFrame}">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Style="{StaticResource HudLabel}"
+                                   Text="{Binding LabelHeaderTipo}" />
+                            <Label Style="{StaticResource HudData}"
+                                   FontSize="18"
+                                   Text="{Binding LabelHeader}" />
+                        </VerticalStackLayout>
+                        <Border Grid.Column="1"
+                                Stroke="{AppThemeBinding Light={StaticResource HudAmberLight}, Dark={StaticResource HudAmberDark}}"
+                                StrokeThickness="2"
+                                StrokeShape="Rectangle"
+                                BackgroundColor="Transparent"
+                                Padding="8,4"
+                                VerticalOptions="Center"
+                                IsVisible="{Binding MembroAttivo.Statistiche, Converter={StaticResource IsNotNullConverter}}">
+                            <Label FontFamily="Consolas"
+                                   FontSize="14"
+                                   CharacterSpacing="2"
+                                   TextColor="{AppThemeBinding Light={StaticResource HudAmberLight}, Dark={StaticResource HudAmberDark}}"
+                                   Text="{Binding MembroAttivo.Statistiche.NumeroSettimana, StringFormat='W{0:D2}'}" />
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- ROW 1 — ZONA MEMBRI SCROLLABILE (per N≥3 lo scroll permette di vedere tutti) -->
+                <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Default">
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Membri}"
+                                         BindableLayout.ItemTemplate="{StaticResource MembroTemplate}"
+                                         Spacing="0" />
+                </ScrollView>
+
+                <!-- ROW 2 — TIMER + PALLINI SET + LABEL SET (sticky) -->
+                <Border Grid.Row="2" Style="{StaticResource HudFrame}">
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Style="{StaticResource HudLabel}" Text="TIMER SET" HorizontalOptions="Center" />
+                        <Label FontFamily="Consolas"
+                               FontSize="64"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource HudTextLight}, Dark={StaticResource HudTextDark}}"
+                               Text="{Binding SerieDisplay}" />
+                        <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="12" HorizontalOptions="Center">
+                            <Label Grid.Column="0" Style="{StaticResource HudLabel}"
+                                   FontSize="11"
+                                   HorizontalTextAlignment="End"
+                                   VerticalOptions="Center"
+                                   Text="{Binding TimerDisplay, StringFormat='TOT {0}'}" />
+                            <Label Grid.Column="1"
+                                   FontFamily="Consolas" FontSize="20"
+                                   VerticalOptions="Center">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="{Binding PalliniFattiTarget}"
+                                              TextColor="{AppThemeBinding Light={StaticResource HudAmberLight}, Dark={StaticResource HudAmberDark}}" />
+                                        <Span Text="{Binding PalliniRimanenti}"
+                                              TextColor="{AppThemeBinding Light={StaticResource HudMutedLight}, Dark={StaticResource HudMutedDark}}" />
+                                        <Span Text="{Binding PalliniExtra}"
+                                              TextColor="{StaticResource HudRed}" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                            <Label Grid.Column="2"
+                                   FontFamily="OpenSansSemibold"
+                                   FontSize="15"
+                                   CharacterSpacing="2"
+                                   HorizontalTextAlignment="Start"
+                                   VerticalOptions="Center"
+                                   Text="{Binding LabelSet}"
+                                   TextColor="{Binding IsOltreLimite, Converter={StaticResource BoolToHudAlertColorConverter}}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ROW 3 — CONTROLLI: tasto centrale + WU/PAUSA (sticky) -->
+                <Grid Grid.Row="3"
+                      IsVisible="{Binding ShowFaticaSelector, Converter={StaticResource InvertedBoolConverter}}"
+                      ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
+                    <Button Grid.Column="0"
+                            Style="{StaticResource HudButtonSecondary}"
+                            WidthRequest="80"
+                            Command="{Binding ToggleWarmupCommand}"
+                            BackgroundColor="{Binding IsWarmupMode, Converter={StaticResource BoolToStrokeConverter}}"
+                            Text="WU" />
+                    <Button Grid.Column="1"
+                            Style="{StaticResource HudButtonPrimary}"
+                            Command="{Binding TastoCentraleCommand}"
+                            Text="{Binding LabelTastoCentrale}" />
+                    <Button Grid.Column="2"
+                            Style="{StaticResource HudButtonSecondary}"
+                            WidthRequest="80"
+                            IsEnabled="{Binding IsEsercizioIniziato}"
+                            Command="{Binding ToggleTimerCommand}"
+                            Text="{Binding IsTimerRunning, Converter={StaticResource BoolToPlayPauseConverter}}" />
+                </Grid>
+
+                <!-- ROW 4 — FINE ESERCIZIO (sticky) o SELETTORE FATICA (cascata) -->
+                <Grid Grid.Row="4">
+
+                    <!-- FINE ESERCIZIO sempre visibile, abilitato dopo almeno un giro completo -->
+                    <Button IsVisible="{Binding ShowFaticaSelector, Converter={StaticResource InvertedBoolConverter}}"
+                            Style="{StaticResource HudButtonSecondary}"
+                            IsEnabled="{Binding ShowFineButton}"
+                            Command="{Binding MostraFaticaCommand}"
+                            Text="FINE ESERCIZIO">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroupList>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="{StaticResource HudRed}" />
+                                            <Setter Property="TextColor" Value="White" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Disabled">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource HudPanelLight}, Dark={StaticResource HudPanelDark}}" />
+                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource HudMutedLight}, Dark={StaticResource HudMutedDark}}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateGroupList>
+                        </VisualStateManager.VisualStateGroups>
+                    </Button>
+
+                    <!-- Selettore fatica: in modalità super set la label cambia per ogni membro in cascata -->
+                    <Border Style="{StaticResource HudFrame}"
+                            IsVisible="{Binding ShowFaticaSelector}">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Style="{StaticResource HudLabel}"
+                                   Text="{Binding LabelDomandaFatica}"
+                                   HorizontalOptions="Center" />
+                            <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="4">
+                                <Button Grid.Column="0" Style="{StaticResource HudFaticaBtn}"
+                                        BackgroundColor="#10B981"
+                                        Text="LEG"
+                                        Command="{Binding SelezionaFaticaCommand}" CommandParameter="1" />
+                                <Button Grid.Column="1" Style="{StaticResource HudFaticaBtn}"
+                                        BackgroundColor="#84CC16"
+                                        Text="OK"
+                                        Command="{Binding SelezionaFaticaCommand}" CommandParameter="2" />
+                                <Button Grid.Column="2" Style="{StaticResource HudFaticaBtn}"
+                                        BackgroundColor="#FFB800"
+                                        Text="MED"
+                                        Command="{Binding SelezionaFaticaCommand}" CommandParameter="3" />
+                                <Button Grid.Column="3" Style="{StaticResource HudFaticaBtn}"
+                                        BackgroundColor="#F97316"
+                                        Text="ALT"
+                                        Command="{Binding SelezionaFaticaCommand}" CommandParameter="4" />
+                                <Button Grid.Column="4" Style="{StaticResource HudFaticaBtn}"
+                                        BackgroundColor="#FF3B30"
+                                        TextColor="White"
+                                        Text="LIM"
+                                        Command="{Binding SelezionaFaticaCommand}" CommandParameter="5" />
+                            </Grid>
+                            <Button Style="{StaticResource HudButtonSecondary}"
+                                    Text="SALTA"
+                                    HeightRequest="44"
+                                    Command="{Binding SaltaFaticaCommand}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <!-- ============================================================ -->
+        <!-- RAMO Cardio — legacy (un solo Membro). Bind su Membri[0]. -->
+        <!-- ============================================================ -->
+        <ScrollView IsVisible="{Binding IsCardio}">
+            <Grid RowDefinitions="Auto,Auto,Auto,*" Padding="16" RowSpacing="12">
+
+                <Frame Grid.Row="0" CornerRadius="16" Padding="20" HasShadow="False"
+                       BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                    <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                        <Label Text="{Binding SerieDisplay}"
+                               FontSize="64" FontAttributes="Bold"
+                               FontFamily="Consolas, monospace"
+                               HorizontalTextAlignment="Center" />
+                        <Button Text="{Binding LabelTastoCentrale}"
+                                FontSize="20" FontAttributes="Bold"
+                                HeightRequest="60" CornerRadius="12"
+                                BackgroundColor="{StaticResource Primary}"
+                                TextColor="White"
+                                Command="{Binding TastoCentraleCommand}" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <Frame Grid.Row="1" CornerRadius="12" Padding="16" HasShadow="False"
+                       BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                    <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,*" RowSpacing="8" ColumnSpacing="12">
+                        <Label Text="Velocità (km/h)" VerticalOptions="Center" />
+                        <Entry Grid.Column="1" Text="{Binding MembroAttivo.VelocitaCorrente}" Keyboard="Numeric" FontSize="18" HeightRequest="45" />
+
+                        <Label Grid.Row="1" Text="Inclinazione (%)" VerticalOptions="Center" />
+                        <Entry Grid.Row="1" Grid.Column="1" Text="{Binding MembroAttivo.InclinazioneCorrente}" Keyboard="Numeric" FontSize="18" HeightRequest="45" />
+
+                        <Label Grid.Row="2" Text="Distanza (km)" VerticalOptions="Center" />
+                        <Entry Grid.Row="2" Grid.Column="1" Text="{Binding MembroAttivo.DistanzaCorrente}" Keyboard="Numeric" FontSize="18" HeightRequest="45" />
+
+                        <Label Grid.Row="3" Text="Durata (sec)" VerticalOptions="Center" />
+                        <Entry Grid.Row="3" Grid.Column="1" Text="{Binding MembroAttivo.DurataCardioCorrente}" Keyboard="Numeric" FontSize="18" HeightRequest="45" />
+                    </Grid>
+                </Frame>
+
+                <VerticalStackLayout Grid.Row="3" Spacing="8" VerticalOptions="End">
+                    <Frame CornerRadius="12" Padding="12" HasShadow="False"
+                           IsVisible="{Binding ShowFaticaSelector}"
+                           BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="{Binding LabelDomandaFatica}" FontSize="16" FontAttributes="Bold" HorizontalTextAlignment="Center" />
+                            <FlexLayout JustifyContent="SpaceEvenly" Wrap="Wrap">
+                                <Button Text="LEG" FontSize="11" HeightRequest="60" WidthRequest="68"
+                                        BackgroundColor="Green" TextColor="White" CornerRadius="10"
+                                        Command="{Binding SelezionaFaticaCommand}" CommandParameter="1" />
+                                <Button Text="OK" FontSize="12" HeightRequest="60" WidthRequest="68"
+                                        BackgroundColor="LightGreen" TextColor="Black" CornerRadius="10"
+                                        Command="{Binding SelezionaFaticaCommand}" CommandParameter="2" />
+                                <Button Text="MED" FontSize="12" HeightRequest="60" WidthRequest="68"
+                                        BackgroundColor="Gold" TextColor="Black" CornerRadius="10"
+                                        Command="{Binding SelezionaFaticaCommand}" CommandParameter="3" />
+                                <Button Text="ALT" FontSize="12" HeightRequest="60" WidthRequest="68"
+                                        BackgroundColor="Orange" TextColor="White" CornerRadius="10"
+                                        Command="{Binding SelezionaFaticaCommand}" CommandParameter="4" />
+                                <Button Text="LIM" FontSize="11" HeightRequest="60" WidthRequest="68"
+                                        BackgroundColor="Red" TextColor="White" CornerRadius="10"
+                                        Command="{Binding SelezionaFaticaCommand}" CommandParameter="5" />
+                            </FlexLayout>
+                            <Button Text="Salta" Command="{Binding SaltaFaticaCommand}" />
+                        </VerticalStackLayout>
+                    </Frame>
+                    <Button Text="FINE ESERCIZIO"
+                            FontSize="18" FontAttributes="Bold" HeightRequest="60" CornerRadius="12"
+                            BackgroundColor="OrangeRed" TextColor="White"
+                            IsVisible="{Binding ShowFineButton}"
+                            Command="{Binding MostraFaticaCommand}" />
+                </VerticalStackLayout>
+            </Grid>
+        </ScrollView>
+    </Grid>
+
+</ContentPage>

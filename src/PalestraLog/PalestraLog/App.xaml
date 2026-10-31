@@ -1,0 +1,26 @@
+<?xml version = "1.0" encoding = "UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:PalestraLog"
+             xmlns:converters="clr-namespace:PalestraLog.Converters"
+             x:Class="PalestraLog.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Converters globali -->
+            <converters:IsNotNullConverter x:Key="IsNotNullConverter" />
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <converters:BoolToStrokeConverter x:Key="BoolToStrokeConverter" />
+            <converters:BoolToPlayPauseConverter x:Key="BoolToPlayPauseConverter" />
+            <converters:SecondsToTimeConverter x:Key="SecondsToTimeConverter" />
+            <converters:FaticaToColorConverter x:Key="FaticaToColorConverter" />
+            <converters:FaticaToLabelConverter x:Key="FaticaToLabelConverter" />
+            <converters:BoolToHudAlertColorConverter x:Key="BoolToHudAlertColorConverter" />
+            <converters:BoolToWarmupBackgroundConverter x:Key="WarmupBackgroundConverter" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

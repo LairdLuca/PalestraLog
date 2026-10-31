@@ -1,0 +1,187 @@
+# =====================================================================
+# .gitignore — PalestraLog (.NET MAUI Android/iOS/Mac/Windows)
+# =====================================================================
+
+# ---------------------------------------------------------------------
+# Build output
+# ---------------------------------------------------------------------
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Ll]og/
+[Ll]ogs/
+
+# Build symbols
+*.pdb
+*.dll
+*.exe
+*.so
+*.dylib
+*.aab
+*.apk
+*.ipa
+*.xap
+
+# .NET Core / .NET runtime publish
+publish/
+PublishProfiles/*.user
+
+# ---------------------------------------------------------------------
+# Visual Studio / Rider / VS Code
+# ---------------------------------------------------------------------
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.dbmdl
+*.jfm
+*.svclog
+
+# Backup & report files from converting old project file
+_UpgradeReport_Files/
+Backup*/
+# ...but not the backup format classes: the Visual Studio template rule above would
+# silently exclude them, and the local build would still pass.
+!src/PalestraLog/PalestraLog/Models/Backup/
+UpgradeLog*.XML
+UpgradeLog*.htm
+ServiceFabricBackup/
+*.tss
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# ---------------------------------------------------------------------
+# NuGet
+# ---------------------------------------------------------------------
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+.nuget/
+
+# ---------------------------------------------------------------------
+# .NET MAUI specific
+# ---------------------------------------------------------------------
+**/Resources/Raw/Generated/
+.maui/
+*.binlog
+
+# ---------------------------------------------------------------------
+# Android specific
+# ---------------------------------------------------------------------
+# Signing keys and keystores — NEVER commit them
+*.keystore
+*.jks
+*.p12
+
+# Build intermediates Android
+**/Platforms/Android/Resources/Resource.designer.cs
+local.properties
+.gradle/
+captures/
+**/Android/bin/
+**/Android/obj/
+
+# ---------------------------------------------------------------------
+# iOS / Mac Catalyst specific
+# ---------------------------------------------------------------------
+*.dSYM/
+*.xcarchive/
+**/Platforms/iOS/iOSResource.designer.cs
+*.mobileprovision
+*.cer
+*.p8
+
+# ---------------------------------------------------------------------
+# Test results and coverage
+# ---------------------------------------------------------------------
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.VisualState.xml
+TestResult.xml
+nunit-*.xml
+coverage*.json
+coverage*.xml
+coverage*.info
+*.coverage
+*.coveragexml
+
+# ---------------------------------------------------------------------
+# Cache, temp, generated
+# ---------------------------------------------------------------------
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+~$*
+*.cache
+StyleCopReport.xml
+ClientBin/
+~$*
+*.dbmdl
+*.dbproj.schemaview
+*.jfm
+
+# Sql Server file
+*.mdf
+*.ldf
+*.ndf
+
+# ---------------------------------------------------------------------
+# OS-specific
+# ---------------------------------------------------------------------
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Linux
+*~
+.fuse_hidden*
+.Trash-*
+
+# ---------------------------------------------------------------------
+# Microsoft Azure / GitHub Actions
+# ---------------------------------------------------------------------
+csx/
+*.build.csdef
+ecf/
+rcf/
+AppPackages/
+BundleArtifacts/
+Package.StoreAssociation.xml
+_pkginfo.txt
+*.appx
+*.appxbundle
+*.appxupload

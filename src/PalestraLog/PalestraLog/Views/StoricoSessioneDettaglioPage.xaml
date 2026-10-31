@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PalestraLog.ViewModels"
+             xmlns:helpers="clr-namespace:PalestraLog.Helpers"
+             x:Class="PalestraLog.Views.StoricoSessioneDettaglioPage"
+             x:DataType="vm:StoricoSessioneDettaglioViewModel"
+             Title="{Binding GiornoNome}">
+
+    <ContentPage.Resources>
+
+        <!--
+            Template "esercizio storico" usato come membro di un gruppo (BindingContext = StoricoEsercizioDettaglio).
+            Per il "singolo" duplichiamo il markup con BindingContext = BloccoStoricoSingolo.Esercizio
+            (DataTemplate non si compone in MAUI).
+        -->
+        <DataTemplate x:Key="MembroStoricoTemplate" x:DataType="vm:StoricoEsercizioDettaglio">
+            <Border StrokeShape="RoundRectangle 10"
+                    Padding="14"
+                    Margin="0,3"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                <VerticalStackLayout Spacing="6">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0"
+                               Text="{Binding Nome}"
+                               FontSize="16"
+                               FontAttributes="Bold" />
+                        <Label Grid.Column="1"
+                               Text="{Binding FaticaLabel}"
+                               FontSize="11"
+                               FontAttributes="Bold"
+                               CharacterSpacing="1"
+                               VerticalOptions="Center"
+                               IsVisible="{Binding HasFatica}"
+                               TextColor="{Binding FaticaColore}" />
+                    </Grid>
+                    <Label Text="{Binding RigheSetMultilinea}"
+                           FontFamily="Consolas"
+                           FontSize="13"
+                           IsVisible="{Binding HasSetLavoro}"
+                           TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                    <Label Text="(nessun set registrato)"
+                           FontSize="12"
+                           FontAttributes="Italic"
+                           TextColor="Gray"
+                           IsVisible="{Binding HasSetLavoro, Converter={StaticResource InvertedBoolConverter}}" />
+                </VerticalStackLayout>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="StoricoSingoloTemplate" x:DataType="vm:BloccoStoricoSingolo">
+            <Border StrokeShape="RoundRectangle 10"
+                    Padding="14"
+                    Margin="0,3"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                <VerticalStackLayout Spacing="6">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0"
+                               Text="{Binding Esercizio.Nome}"
+                               FontSize="16"
+                               FontAttributes="Bold" />
+                        <Label Grid.Column="1"
+                               Text="{Binding Esercizio.FaticaLabel}"
+                               FontSize="11"
+                               FontAttributes="Bold"
+                               CharacterSpacing="1"
+                               VerticalOptions="Center"
+                               IsVisible="{Binding Esercizio.HasFatica}"
+                               TextColor="{Binding Esercizio.FaticaColore}" />
+                    </Grid>
+                    <Label Text="{Binding Esercizio.RigheSetMultilinea}"
+                           FontFamily="Consolas"
+                           FontSize="13"
+                           IsVisible="{Binding Esercizio.HasSetLavoro}"
+                           TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                    <Label Text="(nessun set registrato)"
+                           FontSize="12"
+                           FontAttributes="Italic"
+                           TextColor="Gray"
+                           IsVisible="{Binding Esercizio.HasSetLavoro, Converter={StaticResource InvertedBoolConverter}}" />
+                </VerticalStackLayout>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="StoricoGruppoTemplate" x:DataType="vm:BloccoStoricoGruppo">
+            <Border StrokeShape="RoundRectangle 14"
+                    StrokeThickness="2"
+                    Stroke="{StaticResource Primary}"
+                    Padding="10"
+                    Margin="0,6"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                <VerticalStackLayout Spacing="6">
+                    <Border Padding="10,4"
+                            StrokeShape="RoundRectangle 6"
+                            StrokeThickness="0"
+                            BackgroundColor="{StaticResource Primary}">
+                        <Label Text="{Binding DisplayName}"
+                               FontAttributes="Bold"
+                               FontSize="13"
+                               TextColor="White"
+                               CharacterSpacing="2"
+                               VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Membri}"
+                                         BindableLayout.ItemTemplate="{StaticResource MembroStoricoTemplate}"
+                                         Spacing="0" />
+                </VerticalStackLayout>
+            </Border>
+        </DataTemplate>
+
+        <helpers:BloccoStoricoTemplateSelector x:Key="BloccoStoricoSelector"
+            SingoloTemplate="{StaticResource StoricoSingoloTemplate}"
+            GruppoTemplate="{StaticResource StoricoGruppoTemplate}" />
+
+    </ContentPage.Resources>
+
+    <Grid Padding="16" RowDefinitions="Auto,*" RowSpacing="12">
+
+        <Border Grid.Row="0"
+                StrokeShape="RoundRectangle 10"
+                Padding="14"
+                BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}">
+            <Grid ColumnDefinitions="*,Auto">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="{Binding GiornoNome}"
+                           FontSize="18" FontAttributes="Bold" />
+                    <Label Text="{Binding DataFormattata}"
+                           FontSize="13" TextColor="Gray" />
+                </VerticalStackLayout>
+                <Label Grid.Column="1"
+                       Text="{Binding DurataFormattata}"
+                       FontSize="20" FontAttributes="Bold"
+                       VerticalOptions="Center"
+                       TextColor="{StaticResource Primary}" />
+            </Grid>
+        </Border>
+
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding Blocchi}"
+                        ItemTemplate="{StaticResource BloccoStoricoSelector}"
+                        SelectionMode="None">
+            <CollectionView.EmptyView>
+                <Label Text="{Binding MessaggioVuoto}"
+                       FontSize="14" HorizontalTextAlignment="Center"
+                       VerticalOptions="Center" TextColor="Gray" />
+            </CollectionView.EmptyView>
+        </CollectionView>
+
+    </Grid>
+
+</ContentPage>
